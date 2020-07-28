@@ -5,6 +5,12 @@ let imagemPersonagem;
 let personagem;
 let imagemInimigo;
 let inimigo;
+let imagemInimigo2;
+let inimigo2;
+let imagemInimigo3;
+let inimigo3;
+let pontuacao;
+let imagemGameOver;
 
 const matrizPersonagem2 = [
   [0, 0],
@@ -68,46 +74,111 @@ const matrizInimigo = [
   [312, 626],
 ];
 
+const matrizInimigo2 = [
+  [0,0],
+  [200, 0],
+  [400, 0],
+  [0, 150],
+  [200, 150],
+  [400, 150],
+  [0, 300],
+  [200, 300],
+  [400, 300],
+  [0, 450],
+  [200, 450],
+  [400, 450],
+  [0, 600],
+  [200, 600],
+  [400, 600],
+  [0, 750],
+];
+
+const matrizInimigo3 = [
+  [0,0],
+  [400,0],
+  [800,0],
+  [1200,0],
+  [1600,0],
+  [0,400],
+  [400,400],
+  [800,400],
+  [1200, 400],
+  [1600, 400],
+  [0,800],
+  [400, 800],
+  [800, 800],
+  [1200, 800],
+  [1600, 800],
+  [0, 1200],
+  [400, 1200],
+  [800, 1200],
+  [1200, 1200],
+  [1600, 1200], 
+  [0, 1600],
+  [400, 1600],
+  [800, 1600],
+  [1200, 1600],
+  [1600, 1600],
+  [0, 2000],
+  [400, 2000],
+  [800, 2000],
+];
+
+const inimigos = [];
+
 function preload() {
   somDoJogo = loadSound('sons/Gideon Wrath Part I.mp3');
   somDoPulo = loadSound('sons/somPulo.mp3');
   imagemCenario = loadImage('imagens/cenario/floresta.png');
   imagemPersonagem = loadImage('imagens/personagem/running-sprite-sheet.png');
   imagemInimigo = loadImage('imagens/inimigos/gotinha.png');
+  imagemInimigo2 = loadImage('imagens/inimigos/gotinha-voadora.png');
+  imagemInimigo3 = loadImage('imagens/inimigos/troll.png');
+  imagemGameOver = loadImage('imagens/assets/game-over.png');
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   cenario = new Cenario(imagemCenario, 4);
-  personagem = new Personagem(matrizPersonagem2, imagemPersonagem, 20, 118.8, 154, 108, 140);
-  inimigo = new Inimigo(matrizInimigo, imagemInimigo, width - 52, 52, 52, 104, 104);
+  pontuacao = new Pontuacao();
+  const inimigo = new Inimigo(matrizInimigo, imagemInimigo, width, 20, 50, 50, 105, 100, 8, 100);
+  const inimigo2 = new Inimigo(matrizInimigo2, imagemInimigo2, width, 140, 100, 80, 200, 150, 8, 600);
+  const inimigo3 = new Inimigo(matrizInimigo3, imagemInimigo3, width, 20, 200, 200, 400, 400, 5, 1000);
+  personagem = new Personagem(matrizPersonagem2, imagemPersonagem, 20, 20, 118.8, 154, 108, 140);
   frameRate(20);
   //somDoJogo.loop();
+
+  inimigos.push(inimigo);
+  inimigos.push(inimigo2);
+  inimigos.push(inimigo3);
 }
 
 function keyPressed() {
   if (key === 'ArrowUp') {
-    personagem.pula();
-    somDoPulo.play();
+    if (personagem.pula() === true) {
+      personagem.pula();
+      somDoPulo.play();
+    }
   }
 }
 
 function draw() {
-  //circle(mouseX, mouseY, 20);
   cenario.exibe();
   cenario.move();
+
+  pontuacao.exibe();
+  pontuacao.adicionarPonto();
   
-  if (key === 'ArrowUp') {
-    personagem.pulo();
-  }
   personagem.exibe();
   personagem.aplicaGravidade();
   
-  inimigo.exibe();
-  inimigo.move();
-
-  if (personagem.estaColidindo(inimigo)) {
-    console.log('colidiu');
-    noLoop();
-  }
+  inimigos.forEach( inimigo => {
+    inimigo.exibe();
+    inimigo.move();
+  
+    if (personagem.estaColidindo(inimigo)) {
+      image(imagemGameOver, width/2 - 200, height/3);
+      noLoop();
+    }
+  })
 }
